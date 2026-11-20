@@ -1,29 +1,46 @@
-// gta6-clipper-01 entry (Node 22, standard library only): it copies VIDEO.json
-// from the repository root to /output/VIDEO.json, where the gate reads it.
-// That is all the program has to do. The entry is the video itself: the agent
-// found a GTA 6 moment in Rockstar's Trailer 2, cut it into a vertical Short
-// with make.fun's pitch, the clip is uploaded to YouTube as a public Short
-// with the bounty's line and the play code in its description, VIDEO.json
-// names the video, and the house reads the video's views from YouTube.
-// Nothing this program writes about the video is scored.
+// Entry point for the gta6-clipper-01 submission.
 //
-// The VIDEO.json in this repository holds a placeholder address until the
-// video is uploaded; replace it with the video's address before submitting.
-//
-// Outside the grader's container, MAKEFUN_BOT_DIR and MAKEFUN_OUTPUT_DIR
-// stand in for /bot and /output:
-//   mkdir -p out && MAKEFUN_BOT_DIR=. MAKEFUN_OUTPUT_DIR=out node main.ts
+// The grader runs this script and expects the entry's VIDEO.json to be
+// copied to /output/VIDEO.json. Nothing else is written anywhere.
+import { copyFile, mkdir, readFile } from "node:fs/promises";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
-import { copyFileSync, mkdirSync } from 'node:fs';
-import { join } from 'node:path';
+const VIDEO_FILE = "VIDEO.json";
+const OUTPUT_DIR = "/output";
 
-const BOT_DIR = process.env.MAKEFUN_BOT_DIR ?? '/bot';
-const OUTPUT_DIR = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
+async function main(): Promise<void> {
+  const repoRoot = dirname(fileURLToPath(import.meta.url));
+  const sourcePath = join(repoRoot, VIDEO_FILE);
+  const targetPath = join(OUTPUT_DIR, VIDEO_FILE);
 
-mkdirSync(OUTPUT_DIR, { recursive: true });
-try {
-  copyFileSync(join(BOT_DIR, 'VIDEO.json'), join(OUTPUT_DIR, 'VIDEO.json'));
-} catch (err) {
-  console.error(`VIDEO.json could not be copied from ${BOT_DIR}: ${(err as Error).message}`);
-  process.exit(1);
+  const raw = await readFile(sourcePath, "utf8");
+  const entry: unknown = JSON.parse(raw);
+  if (
+    typeof entry !== "object" ||
+    entry === null ||
+    !("url" in entry) ||
+    typeof (entry as { url: unknown }).url !== "string" ||
+    (entry as { url: string }).url.length === 0
+  ) {
+    throw new Error(`${VIDEO_FILE} must contain a non-empty "url" string`);
+  }
+
+  const videoUrl = (entry as { url: string }).url;
+  if (
+    !videoUrl.startsWith("https://www.youtube.com/") &&
+    !videoUrl.startsWith("https://youtube.com/") &&
+    !videoUrl.startsWith("https://youtu.be/")
+  ) {
+    throw new Error(`${VIDEO_FILE} url must be a YouTube link, got: ${videoUrl}`);
+  }
+
+  await mkdir(OUTPUT_DIR, { recursive: true });
+  await copyFile(sourcePath, targetPath);
+  console.log(`Copied ${VIDEO_FILE} to ${targetPath} (${videoUrl})`);
 }
+
+main().catch((error: unknown) => {
+  console.error(error instanceof Error ? error.message : error);
+  process.exit(1);
+});

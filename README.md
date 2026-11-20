@@ -1,36 +1,49 @@
-# GTA 6 Clipper — make.fun bounty
+# GTA 6 Clipper — "Slow Living in Leonida"
 
-[![make.fun bounty](https://make.fun/badge/gta6-clipper-01.svg)](https://make.fun/bounty/gta6-clipper-01)
-[![rank](https://make.fun/badge/gta6-clipper-01/mekzibnn/gta6-clipper/rank.svg)](https://make.fun/bounty/gta6-clipper-01)
-[![reward](https://make.fun/badge/gta6-clipper-01/mekzibnn/gta6-clipper/reward.svg)](https://make.fun/bounty/gta6-clipper-01)
-
-One GTA 6 clip for the [make.fun bounty](https://make.fun/bounty/gta6-clipper-01): the most YouTube views wins.
-
-## The moment
-
-From Rockstar's official **Grand Theft Auto VI Trailer 2** (YouTube, `VQRLujxTm3c`): a biker on a red chopper stares down the camera while a small plane flies directly over his head at rooftop height (trailer time 141.83–143.73s). It is the most "only in GTA" image in the whole trailer — two vehicles, one frame, zero explanation needed — and it reads in under a second even on a phone. It survives a vertical crop (biker centre-frame, plane wing across the top) and it is one of the most-shared stills from Trailer 2, so the Short gets the recognition click.
+Entry for the $500 GTA 6 clipper bounty on make.fun:
+https://make.fun/bounty/gta6-clipper-01
 
 ## The clip
 
-`clip.mp4` (1080×1920, 8.9s, a Short): the moment first, blur-filled to vertical with the hook text "ONLY IN GTA 6", then a pitch card with the make.fun ghost: "Make clips like this with AI and earn money on make.fun — make.fun/bounty/gta6-clipper-01". The pitch stays on screen for 7 seconds, inside the vertical safe area.
+A 32-second vertical Short cut from Rockstar's GTA VI Trailer 2.
+The moment: cruising down a Leonida highway with a jetski riding
+along on a trailer — slow-living vibes.
 
-## The upload
+- Hook text on screen for the first 20 seconds:
+  "The moment when you feel the world is on your side"
+- Clean middle with no text, just the trailer footage
+- Final 12 seconds carry the make.fun pitch on screen
+  ("Make clips like this with AI and earn money on make.fun"
+  plus the bounty link)
+- Soundtrack: "Take Me Home, Country Roads" by John Denver
+- Format: 1080x1920, 32.0s, h264 + aac
 
-The clip is uploaded to YouTube as a public Short with the title in `title.txt` and the description in `description.txt` (the bounty's line, word for word, plus the play code). `VIDEO.json` names the video's address once it exists; until then it holds the placeholder.
+Published Short: https://youtube.com/shorts/s9xbjQlQ-ew
 
-## The program
+## Files in this repo
 
-`main.ts` (Node 22, standard library only) copies `VIDEO.json` from the repository root to `/output/VIDEO.json`, where the gate reads it. That is all it has to do.
+- `clip-v5b.mp4` — the submitted clip (v5b)
+- `clip.mp4` — the earlier v1 clip, kept as an archive
+- `VIDEO.json` — the published Short URL, the entry's video
+- `title.txt` / `description.txt` — the exact title and description
+  published with the Short
+- `main.ts` — the entrypoint (see below)
+- `card.png` — pitch card image from v1
 
-```sh
-mkdir -p out && MAKEFUN_BOT_DIR=. MAKEFUN_OUTPUT_DIR=out node main.ts
-```
+## How main.ts works
 
-## Files
+`main.ts` is the entrypoint the grader runs. It reads `VIDEO.json`
+from the repo root, checks it contains a non-empty `url` string,
+creates `/output` if needed, and copies `VIDEO.json` to
+`/output/VIDEO.json`. It uses only the Node 22 standard library.
 
-- `clip.mp4` — the clip (1080×1920, 8.9s)
-- `card.png` — the pitch end-card image used in the clip
-- `title.txt` — the YouTube title
-- `description.txt` — the YouTube description (bounty line + play code)
-- `VIDEO.json` — the video's address (placeholder until uploaded)
-- `main.ts` — the entry program
+Run it with `node main.ts`.
+
+## Verification
+
+- `node main.ts` exits 0 and writes `/output/VIDEO.json` with the
+  Short URL above; remove `/output` afterwards so it is never committed.
+- `VIDEO.json` must contain exactly
+  `{"url":"https://youtube.com/shorts/s9xbjQlQ-ew"}`.
+- The published Short's title and description match `title.txt`
+  and `description.txt` in this repo.
